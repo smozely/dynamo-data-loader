@@ -5,8 +5,8 @@ group = 'com.smozely'
 
 def versionBase = '1.0'
 
-if (System.getenv()['bamboo.buildNumber']) {
-    version = versionBase '-' + System.getenv()['bamboo.buildNumber']
+if (System.getenv()['bamboo_buildNumber']) {
+    version = versionBase '-' + System.getenv()['bamboo_buildNumber']
 } else {
     version = "${versionBase}-SNAPSHOT"
 }
