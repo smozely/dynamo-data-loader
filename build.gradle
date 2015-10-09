@@ -31,7 +31,6 @@ repositories {
 }
 
 dependencies {
-    compile 'com.smozely:test:1.0-SNAPSHOT'
 }
 
 publishing {
