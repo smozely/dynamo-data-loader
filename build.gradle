@@ -1,3 +1,51 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+group = 'com.smozely'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        url "s3://repo.smozely.com/releases"
+        credentials(AwsCredentials) {
+            accessKey AWS_ACCESS_KEY
+            secretKey AWS_SECRET_KEY
+        }
+    }
+
+    maven {
+        url "s3://repo.smozely.com/snapshots"
+        credentials(AwsCredentials) {
+            accessKey AWS_ACCESS_KEY
+            secretKey AWS_SECRET_KEY
+        }
+    }
+}
+
+dependencies {
+    compile 'com.smozely:test:1.0-SNAPSHOT'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            if(project.version.endsWith('-SNAPSHOT')) {
+                url "s3://repo.smozely.com/snapshots"
+            } else {
+                url "s3://repo.smozely.com/release"
+            }
+            credentials(AwsCredentials) {
+                accessKey AWS_ACCESS_KEY
+                secretKey AWS_SECRET_KEY
+            }
+        }
+    }
+}
