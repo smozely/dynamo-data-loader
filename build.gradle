@@ -20,15 +20,7 @@ version = ext.gitVersionName
 
 repositories {
     maven {
-        url "s3://repo.smozely.com/releases"
-        credentials(AwsCredentials) {
-            accessKey AWS_ACCESS_KEY
-            secretKey AWS_SECRET_KEY
-        }
-    }
-
-    maven {
-        url "s3://repo.smozely.com/snapshots"
+        url "s3://repo.smozely.com/release"
         credentials(AwsCredentials) {
             accessKey AWS_ACCESS_KEY
             secretKey AWS_SECRET_KEY
@@ -50,11 +42,7 @@ publishing {
     }
     repositories {
         maven {
-            if(project.version.endsWith('-SNAPSHOT')) {
-                url "s3://repo.smozely.com/snapshots"
-            } else {
-                url "s3://repo.smozely.com/release"
-            }
+            url "s3://repo.smozely.com/release"
             credentials(AwsCredentials) {
                 accessKey AWS_ACCESS_KEY
                 secretKey AWS_SECRET_KEY
