@@ -15,10 +15,6 @@ ext {
     gitVersionName = "${git.describe()}"
 }
 
-println "Version : ${gitVersionName}"
-println "Current Dir : ${file('.').absolutePath}"
-
-
 group = 'com.smozely'
 version = ext.gitVersionName
 
