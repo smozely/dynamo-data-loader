@@ -1,20 +1,25 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:grgit:1.4.+'
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-group = 'com.smozely'
 
-def versionBase = '1.0'
-
-if (System.getenv()['bamboo_buildNumber']) {
-    version = versionBase + '-' + System.getenv()['bamboo_buildNumber']
-} else {
-    version = "${versionBase}-SNAPSHOT"
+ext {
+    git = org.ajoberstar.grgit.Grgit.open(file('.'))
+    gitVersionName = "${git.describe()}"
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
+group = 'com.smozely'
+version = ext.gitVersionName
 
+repositories {
     maven {
         url "s3://repo.smozely.com/releases"
         credentials(AwsCredentials) {
@@ -30,6 +35,8 @@ repositories {
             secretKey AWS_SECRET_KEY
         }
     }
+
+    mavenCentral()
 }
 
 dependencies {
