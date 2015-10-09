@@ -10,11 +10,14 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-
 ext {
     git = org.ajoberstar.grgit.Grgit.open(file('.'))
     gitVersionName = "${git.describe()}"
 }
+
+println "Version : ${gitVersionName}"
+println "Current Dir : ${file('.').absolutePath}"
+
 
 group = 'com.smozely'
 version = ext.gitVersionName
