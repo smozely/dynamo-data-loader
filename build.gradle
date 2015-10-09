@@ -2,7 +2,13 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 
 group = 'com.smozely'
-version = '1.0-SNAPSHOT'
+
+def versionBase = '1.0'
+if (project.hasProperty("buildnumber")) {
+    version = "${versionBase}-${buildnumber}"
+} else {
+    version = "${versionBase}-SNAPSHOT"
+}
 
 repositories {
     mavenLocal()
