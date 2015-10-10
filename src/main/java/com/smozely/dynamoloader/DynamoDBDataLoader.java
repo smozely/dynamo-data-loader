@@ -1,6 +1,7 @@
 package com.smozely.dynamoloader;
 
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import com.google.common.collect.Lists;
 import com.smozely.dynamoloader.internal.ClearOperation;
 import com.smozely.dynamoloader.internal.DataLoaderOperation;
@@ -22,9 +23,14 @@ public class DynamoDBDataLoader {
     }
 
     public DynamoDBDataLoader clear(String tableName) {
-        operations.add(new ClearOperation(this.dynamo, tableName));
+        return clear(this.dynamo.getTable(tableName));
+    }
+
+    public DynamoDBDataLoader clear(Table table) {
+        operations.add(new ClearOperation(table));
         return this;
     }
+
 
     public void execute() {
         operations.forEach(DataLoaderOperation::execute);

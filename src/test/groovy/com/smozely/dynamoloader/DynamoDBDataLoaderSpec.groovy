@@ -13,7 +13,8 @@ import spock.lang.Specification
  */
 class DynamoDBDataLoaderSpec extends Specification {
 
-    public static final String TABLE_WITH_HASH_KEY = "TEST_HASH_KEYED_TABLE"
+    public static final String TABLE1 = "TABLE1"
+    public static final String TABLE2 = "TABLE2"
 
     private AlternatorDB db
     private DynamoDB dynamoDB
@@ -33,25 +34,35 @@ class DynamoDBDataLoaderSpec extends Specification {
     }
 
     def makeSomeData() {
-        support.createGenericTable(TABLE_WITH_HASH_KEY, "id")
+        support.createGenericTable(TABLE1, "id")
+        support.createGenericTable(TABLE2, "id")
     }
 
     def "Loader Executes Provided Operations"() {
         given:
-        Table table = dynamoDB.getTable(TABLE_WITH_HASH_KEY)
-        table.putItem(new Item().with("id", "123"))
-        table.putItem(new Item().with("id", "456"))
+        Table table1 = dynamoDB.getTable(TABLE1)
+        table1.putItem(new Item().with("id", "123"))
+        table1.putItem(new Item().with("id", "456"))
+
+        Table table2 = dynamoDB.getTable(TABLE2)
+        table2.putItem(new Item().with("id", "123"))
+        table2.putItem(new Item().with("id", "456"))
 
         when:
         DynamoDBDataLoader
                 .with(dynamoDB)
-                .clear(TABLE_WITH_HASH_KEY)
+                .clear(TABLE1)
+                .clear(table2)
                 .execute()
 
         then:
-        def scan = table.scan()
-        scan.forEach({})
-        scan.totalCount == 0
+        def scan1 = table1.scan()
+        scan1.forEach({})
+        scan1.totalCount == 0
+
+        def scan2 = table2.scan()
+        scan2.forEach({})
+        scan2.totalCount == 0
     }
 
 }

@@ -1,6 +1,5 @@
 package com.smozely.dynamoloader.internal;
 
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
@@ -8,16 +7,11 @@ import com.amazonaws.services.dynamodbv2.model.TableDescription;
 
 import java.util.List;
 
-public class ClearOperation extends BaseDataLoaderOperation implements DataLoaderOperation {
+public class ClearOperation implements DataLoaderOperation {
 
     private final Table table;
 
-    public ClearOperation(DynamoDB dynamoDB, String tableName) {
-        this(dynamoDB, dynamoDB.getTable(tableName));
-    }
-
-    public ClearOperation(DynamoDB dynamoDB, Table table) {
-        super(dynamoDB);
+    public ClearOperation(Table table) {
         this.table = table;
     }
 
