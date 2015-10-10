@@ -13,8 +13,12 @@ public class ClearOperation extends BaseDataLoaderOperation implements DataLoade
     private final Table table;
 
     public ClearOperation(DynamoDB dynamoDB, String tableName) {
+        this(dynamoDB, dynamoDB.getTable(tableName));
+    }
+
+    public ClearOperation(DynamoDB dynamoDB, Table table) {
         super(dynamoDB);
-        table = dynamoDB.getTable(tableName);
+        this.table = table;
     }
 
     @Override
