@@ -30,17 +30,25 @@ public class LoadOperation implements DataLoaderOperation {
 
     private void putItem(JsonNode node) {
         Item item = new Item();
+        populateItem(node, item);
+        table.putItem(item);
+    }
 
+    private void populateItem(JsonNode node, Item item) {
         node.fields().forEachRemaining( it -> {
             if (it.getValue().isTextual()) {
                 item.withString(it.getKey(), it.getValue().asText());
+
             } else if (it.getValue().isNumber()) {
                 item.withNumber(it.getKey(), new BigDecimal(it.getValue().asText()));
+
             } else if (it.getValue().isBoolean()) {
                 item.withBoolean(it.getKey(), it.getValue().asBoolean());
+
+            } else if (it.getValue().isArray()) {
+
+
             }
         });
-
-        table.putItem(item);
     }
 }
