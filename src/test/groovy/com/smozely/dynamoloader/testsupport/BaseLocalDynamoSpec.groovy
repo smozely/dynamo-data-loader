@@ -10,6 +10,8 @@ import spock.lang.Specification
 
 public abstract class BaseLocalDynamoSpec extends Specification {
 
+    private int dynamoPort = Integer.valueOf(System.getProperty("DYNAMO_PORT", "8000"))
+
     protected DynamoDB dynamoDB;
     protected AlternatorSupport support;
     protected ObjectMapper mapper = new ObjectMapper();
@@ -24,7 +26,8 @@ public abstract class BaseLocalDynamoSpec extends Specification {
 
     private void setupDynamoDB() {
         AmazonDynamoDBClient client = new AmazonDynamoDBClient(new BasicAWSCredentials("", ""));
-        client.setEndpoint("http://localhost:8000");
+
+        client.setEndpoint("http://localhost:${dynamoPort}");
         dynamoDB = new DynamoDB(client);
     }
 

@@ -60,10 +60,15 @@ task extractLocalDynamo(type: Copy) {
     into "$buildDir/dynamolocal/"
 }
 
+def dynamoPort = AvailablePortFinder.createPrivate().nextAvailable
 task beforeTests(type: SpawnProcessTask, dependsOn: extractLocalDynamo) {
     directory "$buildDir/dynamolocal/"
-    command "java -jar DynamoDBLocal.jar -inMemory"
+    command "java -jar DynamoDBLocal.jar -inMemory -port ${dynamoPort}"
     ready 'Initializing DynamoDB Local with the following configuration'
+}
+
+test {
+    systemProperty 'DYNAMO_PORT', dynamoPort
 }
 test.dependsOn(beforeTests)
 
@@ -78,7 +83,6 @@ def isCiBuild() {
 }
 
 if (isCiBuild()) {
-    apply plugin: 'maven-publish'
     publishing {
         publications {
             mavenJava(MavenPublication) {
