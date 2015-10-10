@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.model.KeyType;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ClearOperation implements DataLoaderOperation {
 
@@ -20,38 +21,24 @@ public class ClearOperation implements DataLoaderOperation {
         TableDescription description = table.describe();
 
         KeySchemaElement hashKey = getHashKeyElement(description.getKeySchema());
-        KeySchemaElement rangeKey = getRangeKeyElement(description.getKeySchema());
+        Optional<KeySchemaElement> rangeKey = getRangeKeyElement(description.getKeySchema());
 
         table.scan().forEach(it -> {
 
-            if (rangeKey.getAttributeName().equals("")) {
-                table.deleteItem(hashKey.getAttributeName(), it.get(hashKey.getAttributeName()));
-            } else {
+            if (rangeKey.isPresent()) {
                 table.deleteItem(hashKey.getAttributeName(), it.get(hashKey.getAttributeName()),
-                        rangeKey.getAttributeName(), it.get(rangeKey.getAttributeName()));
+                        rangeKey.get().getAttributeName(), it.get(rangeKey.get().getAttributeName()));
+            } else {
+                table.deleteItem(hashKey.getAttributeName(), it.get(hashKey.getAttributeName()));
             }
         });
     }
 
     public KeySchemaElement getHashKeyElement(List<KeySchemaElement> schema) {
-        KeySchemaElement hashElement = new KeySchemaElement().withAttributeName("");
-        for (KeySchemaElement element : schema) {
-            if (element.getKeyType().equals(KeyType.HASH.toString())) {
-                hashElement = element;
-                break; // out of 'for'
-            }
-        }
-        return hashElement;
+        return schema.stream().filter(it -> it.getKeyType().equals(KeyType.HASH.toString())).findFirst().get();
     }
 
-    public KeySchemaElement getRangeKeyElement(List<KeySchemaElement> schema) {
-        KeySchemaElement rangeElement = new KeySchemaElement().withAttributeName("");
-        for (KeySchemaElement element : schema) {
-            if (element.getKeyType().equals(KeyType.RANGE.toString())) {
-                rangeElement = element;
-                break; // out of 'for'
-            }
-        }
-        return rangeElement;
+    public Optional<KeySchemaElement> getRangeKeyElement(List<KeySchemaElement> schema) {
+        return schema.stream().filter(it -> it.getKeyType().equals(KeyType.RANGE.toString())).findFirst();
     }
 }
