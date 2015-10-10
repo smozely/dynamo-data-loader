@@ -1,38 +1,18 @@
 package com.smozely.dynamoloader.internal
 
-import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Table
-import com.michelboudreau.alternator.AlternatorDB
-import com.michelboudreau.alternatorv2.AlternatorDBClientV2
-import com.smozely.dynamoloader.testsupport.AlternatorSupport
-import spock.lang.Specification
+import com.smozely.dynamoloader.testsupport.BaseLocalDynamoSpec
 
-class ClearOperationSpec extends Specification {
+class ClearOperationSpec extends BaseLocalDynamoSpec {
 
     public static final String TABLE_WITH_HASH_KEY = "TEST_HASH_KEYED_TABLE"
     public static final String TABLE_WITH_HASH_RANGE_KEY = "TEST_HASH_RANGE_KEYED_TABLE"
 
-    private AlternatorDB db
-    private DynamoDB dynamoDB
-    private AlternatorSupport support
-
     private ClearOperation underTest
 
-
-    def setup() {
-        db = new AlternatorDB().start()
-        dynamoDB = new DynamoDB(new AlternatorDBClientV2())
-        support = new AlternatorSupport(dynamoDB)
-        makeSomeData()
-
-    }
-
-    def cleanup() {
-        db.stop()
-    }
-
-    def makeSomeData() {
+    @Override
+    public void setupData() {
         support.createGenericTable(TABLE_WITH_HASH_KEY, "id")
         support.createGenericHashRangeTable(TABLE_WITH_HASH_RANGE_KEY, "id", "range")
     }

@@ -1,3 +1,5 @@
+import com.wiredforcode.gradle.spawn.*
+
 buildscript {
     repositories {
         maven {
@@ -12,6 +14,10 @@ buildscript {
 
 plugins {
     id "com.jfrog.bintray" version "1.3.1"
+    id "com.wiredforcode.spawn" version "0.6.0"
+
+    id 'groovy'
+    id 'maven-publish'
 }
 
 repositories {
@@ -22,9 +28,6 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'maven-publish'
-apply plugin: 'groovy'
-
 ext {
     git = org.ajoberstar.grgit.Grgit.open()
     gitVersionName = "${git.describe()}"
@@ -34,6 +37,10 @@ group = 'com.smozely'
 version = ext.gitVersionName
 
 
+configurations {
+    dynamolocal
+}
+
 dependencies {
     compile('com.amazonaws:aws-java-sdk:1.10.26')
     compile('com.google.guava:guava:18.0')
@@ -42,8 +49,29 @@ dependencies {
     testCompile('org.spockframework:spock-core:1.0-groovy-2.4')
     testCompile('org.codehaus.groovy:groovy-all:2.4.5')
     testCompile('org.assertj:assertj-core:3.1.0')
-    testCompile('com.michelboudreau:alternator:0.12.0')
+
+    dynamolocal 'com.jcabi:DynamoDBLocal:2015-07-16'
 }
+
+task extractLocalDynamo(type: Copy) {
+    from {
+        configurations.dynamolocal.collect { zipTree(it) }
+    }
+    into "$buildDir/dynamolocal/"
+}
+
+task beforeTests(type: SpawnProcessTask, dependsOn: extractLocalDynamo) {
+    directory "$buildDir/dynamolocal/"
+    command "java -jar DynamoDBLocal.jar -inMemory"
+    ready 'Initializing DynamoDB Local with the following configuration'
+}
+test.dependsOn(beforeTests)
+
+task afterTests(type: KillProcessTask, dependsOn: beforeTests) {
+    directory "$buildDir/dynamolocal/"
+}
+afterTests.mustRunAfter beforeTests
+test.finalizedBy(afterTests)
 
 def isCiBuild() {
     return project.hasProperty("ci-build")

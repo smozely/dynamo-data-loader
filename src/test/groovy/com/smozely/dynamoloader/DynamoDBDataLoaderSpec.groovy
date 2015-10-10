@@ -1,39 +1,19 @@
 package com.smozely.dynamoloader
 
-import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.Table
-import com.michelboudreau.alternator.AlternatorDB
-import com.michelboudreau.alternatorv2.AlternatorDBClientV2
-import com.smozely.dynamoloader.testsupport.AlternatorSupport
-import spock.lang.Specification
+import com.smozely.dynamoloader.testsupport.BaseLocalDynamoSpec
 
 /**
  * Super simple test to show the loader hangs together, most testing is done on the internal classes.
  */
-class DynamoDBDataLoaderSpec extends Specification {
+class DynamoDBDataLoaderSpec extends BaseLocalDynamoSpec {
 
     public static final String TABLE1 = "TABLE1"
     public static final String TABLE2 = "TABLE2"
 
-    private AlternatorDB db
-    private DynamoDB dynamoDB
-    private AlternatorSupport support
-
-
-    def setup() {
-        db = new AlternatorDB().start()
-        dynamoDB = new DynamoDB(new AlternatorDBClientV2())
-        support = new AlternatorSupport(dynamoDB)
-        makeSomeData()
-
-    }
-
-    def cleanup() {
-        db.stop()
-    }
-
-    def makeSomeData() {
+    @Override
+    public void setupData() {
         support.createGenericTable(TABLE1, "id")
         support.createGenericTable(TABLE2, "id")
     }
