@@ -38,11 +38,15 @@ e.g.
     ]
 ```
 
+## Limitations
+... Write about List vs Set handling here ...
+
 ## Completed Features
 * Clear Tables
 * Load simple JSON structure  
+* Load JSON which includes Arrays
 
 ## TODO
-* Load JSON which includes Arrays  
+* Load JSON which includes Sets  
 * Load JSON which includes Objects
 * Support templated string values i.e. `${some_value}`

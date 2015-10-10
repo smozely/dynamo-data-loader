@@ -2,9 +2,12 @@ package com.smozely.dynamoloader.internal;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class LoadOperation implements DataLoaderOperation {
 
@@ -20,7 +23,7 @@ public class LoadOperation implements DataLoaderOperation {
     @Override
     public void execute() {
         if (topJson.isArray()) {
-            topJson.iterator().forEachRemaining( it -> {
+            topJson.iterator().forEachRemaining(it -> {
                 putItem(it);
             });
         } else {
@@ -35,20 +38,29 @@ public class LoadOperation implements DataLoaderOperation {
     }
 
     private void populateItem(JsonNode node, Item item) {
-        node.fields().forEachRemaining( it -> {
-            if (it.getValue().isTextual()) {
-                item.withString(it.getKey(), it.getValue().asText());
-
-            } else if (it.getValue().isNumber()) {
-                item.withNumber(it.getKey(), new BigDecimal(it.getValue().asText()));
-
-            } else if (it.getValue().isBoolean()) {
-                item.withBoolean(it.getKey(), it.getValue().asBoolean());
-
-            } else if (it.getValue().isArray()) {
-
-
-            }
+        node.fields().forEachRemaining(it -> {
+            item.with(it.getKey(), getValueFromNode(it.getValue()));
         });
+    }
+
+    private Object getValueFromNode(JsonNode node) {
+        if (node.isTextual()) {
+            return node.textValue();
+
+        } else if (node.isNumber()) {
+            return new BigDecimal(node.asText());
+
+        } else if (node.isBoolean()) {
+            return node.asBoolean();
+
+        } else if (node.isArray()) {
+            List<Object> list = Lists.newArrayList();
+            node.forEach( it -> {
+                list.add(getValueFromNode(it));
+            });
+            return list;
+        } else {
+            throw new IllegalArgumentException("Could not handle Node Type : " + node.getNodeType());
+        }
     }
 }
