@@ -44,7 +44,7 @@ class ClearOperationSpec extends Specification {
         table.putItem(new Item().with("id", "456"))
 
         when:
-        underTest = new ClearOperation(dynamoDB, TABLE_WITH_HASH_KEY)
+        underTest = new ClearOperation(dynamoDB.getTable(TABLE_WITH_HASH_KEY))
         underTest.execute()
 
         then:
@@ -60,7 +60,7 @@ class ClearOperationSpec extends Specification {
         table.putItem(new Item().with("id", "456").with("range", "123"))
 
         when:
-        underTest = new ClearOperation(dynamoDB, TABLE_WITH_HASH_RANGE_KEY)
+        underTest = new ClearOperation(dynamoDB.getTable(TABLE_WITH_HASH_RANGE_KEY))
         underTest.execute()
 
         then:
