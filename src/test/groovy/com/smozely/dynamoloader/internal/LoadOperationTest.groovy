@@ -6,8 +6,6 @@ class LoadOperationTest extends BaseLocalDynamoSpec {
 
     public static final String TABLE_FOR_LOADING = "TABLE_FOR_LOADING"
 
-    private LoadOperation underTest
-
     @Override
     public void setupData() {
         support.createGenericTable(TABLE_FOR_LOADING, "id")
@@ -92,11 +90,11 @@ class LoadOperationTest extends BaseLocalDynamoSpec {
 
         item.get("mixed_array") instanceof List
 
-        item.getList("mixed_array") != null
-        item.getList("mixed_array").get(0).equals("a")
-        item.getList("mixed_array").get(1).equals(new BigDecimal("123"))
-        item.getList("mixed_array").get(2).equals(false)
-        item.getList("mixed_array").get(3).equals(new BigDecimal("123.45"))
+        def array = item.getList("mixed_array")
+        array.get(0).equals("a")
+        array.get(1).equals(new BigDecimal("123"))
+        array.get(2).equals(false)
+        array.get(3).equals(new BigDecimal("123.45"))
     }
 
     def "Loads Data With String Set Correctly"() {
@@ -118,11 +116,12 @@ class LoadOperationTest extends BaseLocalDynamoSpec {
 
         item.get("string_array") instanceof Set
 
-        item.getStringSet("string_array") != null
-        item.getStringSet("string_array").contains("a")
-        item.getStringSet("string_array").contains("b")
-        item.getStringSet("string_array").contains("c")
-        item.getStringSet("string_array").contains("d")
+
+        def stringSet = item.getStringSet("string_array")
+        stringSet.contains("a")
+        stringSet.contains("b")
+        stringSet.contains("c")
+        stringSet.contains("d")
     }
 
     def "Loads Data With Number Set Correctly"() {
@@ -144,11 +143,74 @@ class LoadOperationTest extends BaseLocalDynamoSpec {
 
         item.get("number_array") instanceof Set
 
-        item.getNumberSet("number_array") != null
-        item.getNumberSet("number_array").contains(new BigDecimal(1))
-        item.getNumberSet("number_array").contains(new BigDecimal(2))
-        item.getNumberSet("number_array").contains(new BigDecimal(3))
-        item.getNumberSet("number_array").contains(new BigDecimal(4))
+        def numberSet = item.getNumberSet("number_array")
+        numberSet.contains(new BigDecimal(1))
+        numberSet.contains(new BigDecimal(2))
+        numberSet.contains(new BigDecimal(3))
+        numberSet.contains(new BigDecimal(4))
+    }
+
+    def "Loads Data With Nested Objects Correctly"() {
+        given:
+        def json = """
+                        {
+                         "id": "123",
+                         "obj": {
+                                    "string": "string_field",
+                                    "number": 123,
+                                    "boolean": true,
+                                    "mixed_array": ["a", 123, true],
+                                    "string_set": ["a", "b", "c"]
+                                }
+                         }
+                   """
+
+        when:
+        new LoadOperation(dynamoDB.getTable(TABLE_FOR_LOADING), mapper.readTree(json)).execute()
+
+        then:
+        def item = dynamoDB.getTable(TABLE_FOR_LOADING).getItem("id", "123")
+
+        item != null
+
+        item.get("obj") instanceof Map
+
+        def map = item.getMap("obj")
+        map.get("string").equals("string_field")
+        map.get("number").equals(new BigDecimal("123"))
+        map.get("boolean").equals(true)
+
+        map.get("mixed_array").get(0).equals("a")
+        map.get("mixed_array").get(1).equals(new BigDecimal("123"))
+        map.get("mixed_array").get(2).equals(true)
+
+        map.get("string_set").contains("a")
+        map.get("string_set").contains("b")
+        map.get("string_set").contains("c")
+    }
+
+    def "Loads Data With Deeply Nested Objects Correctly"() {
+        given:
+        def json = """
+                        {
+                         "id": "123",
+                         "obj": {
+                                    "obj2": {
+                                        "obj3": [{"id": 456}]
+                                    }
+                                }
+                         }
+                   """
+
+        when:
+        new LoadOperation(dynamoDB.getTable(TABLE_FOR_LOADING), mapper.readTree(json)).execute()
+
+        then:
+        def item = dynamoDB.getTable(TABLE_FOR_LOADING).getItem("id", "123")
+
+        item != null
+        item.get("obj") instanceof Map
+        item.getMap("obj").get("obj2").get("obj3").get(0).get("id") == new BigDecimal("456")
     }
 
 }

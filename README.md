@@ -39,15 +39,15 @@ e.g.
 ```
 
 ## Limitations
-... Write about List vs Set handling here ...
+When loading a JSON file, to determine if an array should be stored as a List or a Set we make a set if all items in the Array are String's or Number's otherwise a List will be made. This may cause issues if the user wants to explicitly have a list but only wants to store Strings/Numbers in it. Raise a Issue if this is a problem for someone.     
 
 ## Completed Features
 * Clear Tables
-* Load simple JSON structure 
+* Load JSON data types 
 * Load JSON which includes Arrays 
 * Load JSON which includes Sets (String and Numeric)
+* Load JSON which includes Objects
 
 ## TODO
-* Load JSON which includes Objects
-* Support templated string values i.e. `${some_value}`
+* Support template style string values i.e. `${some_value}`
 * Support for and Byte or ByteBuffer type fields (needs special handling because of note being supported in Standard JSON) 
