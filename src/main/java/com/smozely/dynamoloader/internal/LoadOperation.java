@@ -2,11 +2,11 @@ package com.smozely.dynamoloader.internal;
 
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 
 public class LoadOperation implements DataLoaderOperation {
@@ -38,9 +38,7 @@ public class LoadOperation implements DataLoaderOperation {
     }
 
     private void populateItem(JsonNode node, Item item) {
-        node.fields().forEachRemaining(it -> {
-            item.with(it.getKey(), getValueFromNode(it.getValue()));
-        });
+        node.fields().forEachRemaining(it -> item.with(it.getKey(), getValueFromNode(it.getValue())));
     }
 
     private Object getValueFromNode(JsonNode node) {
@@ -55,9 +53,12 @@ public class LoadOperation implements DataLoaderOperation {
 
         } else if (node.isArray()) {
             List<Object> list = Lists.newArrayList();
-            node.forEach( it -> {
-                list.add(getValueFromNode(it));
-            });
+            node.forEach(it -> list.add(getValueFromNode(it)));
+
+            if (list.stream().allMatch(it -> it instanceof String) || list.stream().allMatch(it -> it instanceof Number)) {
+                return new HashSet(list);
+            }
+
             return list;
         } else {
             throw new IllegalArgumentException("Could not handle Node Type : " + node.getNodeType());

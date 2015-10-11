@@ -43,10 +43,11 @@ e.g.
 
 ## Completed Features
 * Clear Tables
-* Load simple JSON structure  
-* Load JSON which includes Arrays
+* Load simple JSON structure 
+* Load JSON which includes Arrays 
+* Load JSON which includes Sets (String and Numeric)
 
 ## TODO
-* Load JSON which includes Sets  
 * Load JSON which includes Objects
 * Support templated string values i.e. `${some_value}`
+* Support for and Byte or ByteBuffer type fields (needs special handling because of note being supported in Standard JSON) 
